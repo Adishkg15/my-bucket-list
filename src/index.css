@@ -1,1 +1,177 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Login page background ---------------------------------------------- */
+/* Always blurred, slow idle "breathe" animation — no cursor tracking.
+   The authenticating state (Google redirect in flight) deepens the blur
+   further via CSS transition, driven by the `authenticating` prop. */
+
+.login-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  background-color: #05040a;
+}
+
+.login-bg__blurred {
+  position: absolute;
+  inset: -5%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(38px) brightness(0.5) saturate(1.05);
+  transform: scale(1.1);
+  animation: login-bg-breathe 16s ease-in-out infinite;
+  transition: filter 700ms ease, opacity 700ms ease;
+  will-change: filter, transform;
+}
+
+@keyframes login-bg-breathe {
+  0%,
+  100% {
+    transform: scale(1.1) translate3d(0, 0, 0);
+    filter: blur(38px) brightness(0.5);
+  }
+  50% {
+    transform: scale(1.16) translate3d(-1%, -1%, 0);
+    filter: blur(30px) brightness(0.6);
+  }
+}
+
+.login-bg__vignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0.15) 35%,
+    rgba(0, 0, 0, 0.15) 65%,
+    rgba(0, 0, 0, 0.6)
+  );
+}
+
+.login-bg--static .login-bg__blurred {
+  animation: none;
+  filter: blur(34px) brightness(0.5);
+}
+
+.login-bg--authenticating .login-bg__blurred {
+  filter: blur(64px) brightness(0.38) saturate(0.9);
+  animation: none;
+  opacity: 0.92;
+}
+
+/* Landing page dream map ---------------------------------------------- */
+/* --tilt-x, --tilt-y, --px, --py are written every animation frame by
+   src/hooks/useCursorFollow.ts. Defaults below only matter before the
+   hook's first frame, or when it's disabled (reduced motion / no pointer). */
+
+.dream-map {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  aspect-ratio: 4 / 3;
+  border-radius: 28px;
+  overflow: hidden;
+  background: radial-gradient(120% 120% at 20% 0%, #1b1440 0%, #0a0818 55%, #050410 100%);
+  perspective: 900px;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+}
+
+.dream-map__grid {
+  position: absolute;
+  inset: -20%;
+  background-image: linear-gradient(to right, rgba(168, 132, 255, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(168, 132, 255, 0.14) 1px, transparent 1px);
+  background-size: 42px 42px;
+  transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform-style: preserve-3d;
+  transition: transform 80ms linear;
+}
+
+.dream-map__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--px, 50%) var(--py, 50%), rgba(168, 132, 255, 0.22), transparent 55%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.dream-map__node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #e7e2ff;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+  animation: dream-map-float 5s ease-in-out infinite;
+}
+
+@keyframes dream-map-float {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-6px);
+  }
+}
+
+.dream-map__plane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #f4f1ff;
+  filter: drop-shadow(0 0 6px rgba(168, 132, 255, 0.6));
+  pointer-events: none;
+  will-change: transform;
+}
+
+.dream-map__trail-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 9999px;
+  background: #c9b8ff;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.dream-map__hint {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.68rem;
+  color: rgba(231, 226, 255, 0.55);
+  letter-spacing: 0.02em;
+}
+
+.dream-map--ambient .dream-map__grid {
+  animation: dream-map-ambient 16s ease-in-out infinite;
+}
+
+@keyframes dream-map-ambient {
+  0%,
+  100% {
+    transform: rotateX(3deg) rotateY(-3deg);
+  }
+  50% {
+    transform: rotateX(-3deg) rotateY(3deg);
+  }
+}
+
+.dream-map--static .dream-map__grid {
+  transform: none;
+  animation: none;
+}
